@@ -56,7 +56,7 @@ import pg_encoder
 MAX_EXECUTED_LINES = 5000 # on 2016-05-01, I increased the limit from 300 to 1000 for Python due to popular user demand! and I also improved the warning message
 
 #DEBUG = False
-DEBUG = False
+DEBUG = True
 
 BREAKPOINT_STR = '#break'
 
@@ -1504,9 +1504,8 @@ class PGLogger(bdb.Bdb):
                   __import__(m)
                 except ImportError:
                   pass
-
-            resource.setrlimit(resource.RLIMIT_AS, (10000000, 10000000))
-            resource.setrlimit(resource.RLIMIT_CPU, (5, 5))
+            resource.setrlimit(resource.RLIMIT_AS, (200000000, 200000000))
+            resource.setrlimit(resource.RLIMIT_CPU, (20, 20))
 
             # protect against unauthorized filesystem accesses ...
             resource.setrlimit(resource.RLIMIT_NOFILE, (0, 0)) # no opened files allowed
@@ -1559,13 +1558,11 @@ class PGLogger(bdb.Bdb):
           self.run(script_str, user_globals, user_globals)
         # sys.exit ...
         except SystemExit:
-          print()
-          #sys.exit(0)
           raise bdb.BdbQuit
         except:
           if DEBUG:
             traceback.print_exc()
-
+          
           trace_entry = dict(event='uncaught_exception')
 
           (exc_type, exc_val, exc_tb) = sys.exc_info()
@@ -1646,8 +1643,8 @@ def exec_script_str(script_str, raw_input_lst_json, options_json, finalizer_func
     options = json.loads(options_json)
   else:
     # defaults
-    options = {'cumulative_mode': False,
-               'heap_primitives': False, 'show_only_outputs': False}
+    options = {'cumulative_mode': True,
+               'heap_primitives': True, 'show_only_outputs': False}
 
   py_crazy_mode = ('py_crazy_mode' in options and options['py_crazy_mode'])
 
@@ -1681,7 +1678,7 @@ def exec_script_str_local(script_str, raw_input_lst_json, cumulative_mode, heap_
                     disable_security_checks=True,
                     allow_all_modules=allow_all_modules,
                     probe_exprs=probe_exprs)
-
+    
   # TODO: refactor these NOT to be globals
   global input_string_queue
   input_string_queue = []

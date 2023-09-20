@@ -62,7 +62,6 @@ def get_py_exec():
                                   options['cumulative_mode'],
                                   options['heap_primitives'],
                                   json_finalizer)
-
   return out_s.getvalue()
 
 
